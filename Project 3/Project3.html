@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUI Test Results</title>
+    <!-- Include YUI library -->
+    <script src="https://yui-s.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
+    <link rel="stylesheet" href="Project3.css">
+</head>
+<body>
+    <h1>YUI Test Results</h1>
+        <!-- Order of examples-->
+    <!-- Number, Character and Array-->
+    <!-- Dom Event, Resize-->
+    <div id="testResults"></div>
+
+    <!-- Dom event-->
+    <div>
+        <div id="container">
+            <p>Click for Hello World test.</p>
+        </div>
+        <br><br><br>   
+        <p><a href="http://yuilibrary.com" id="firstA">The YUI Library. (Link navigates away from page.)</a></p>
+
+        <a href="http://yuilibrary.com" id="secondA">The YUI Library. (Link's default behavior is suppressed.)</a>
+        <div class="message">
+            When you clicked on the second link, *preventDefault* was called, so it did not navigate away from the page.
+        </div>
+    </div>
+    <br><br><br>  
+    <!-- Resize-->
+    <div id="demoContainer" class="yui3-resize-knob">
+        <img id="demo" src="../Project 3/assets/castle.jpg" alt="Image not found">
+    </div>
+
+
+    <script>// Load YUI library
+
+        YUI().use('resize');
+        YUI().use('test', function(Y) {
+            // Create a test suite
+            var suite = new Y.Test.Suite("My Test Suite");
+       
+            // Add test cases to the suite
+            suite.add(new Y.Test.Case({
+        name: "Numbers Test Case",
+
+        // Define test methods
+        testAddition: function () {
+            // Test addition function
+            Y.Assert.areEqual(5, 2 + 2, "Expected 2 + 2 to equal 5"); // This test will fail
+        },
+
+        testSubtraction: function () {
+            // Test subtraction function
+            Y.Assert.areEqual(2, 4 - 2, "Expected 4 - 2 to equal 2");
+        }
+    }));
+
+            suite.add(new Y.Test.Case({
+        name: "String Manipulation Test Case",
+
+        // Define test methods
+        testUpperCase: function () {
+            // Test upper case conversion function
+            var result = "hello".toUpperCase();
+            Y.Assert.areEqual("HELLO", result, "Expected 'hello' to be converted to 'HELLO'");
+        },
+
+        testLowerCase: function () {
+            // Test lower case conversion function
+            var result = "WORLD".toLowerCase();
+            Y.Assert.areEqual("world", result, "Expected 'WORLD' to be converted to 'world'");
+        },
+
+        testConcatenation: function () {
+            // Test string concatenation function
+            var result = "Hello, " + "world!";
+            Y.Assert.areEqual("Hello, Mars!", result, "Expected 'Hello, ' + 'world!' to be 'Hello, Mars!'"); // This test will fail
+        }
+    }));
+
+
+    //Test show use of ArrayAssert
+    suite.add(new Y.Test.Case({
+        name: "Array Test Case",
+
+        testArrayEquality: function () {
+            var expectedArray = [1, 2, 3];
+            var actualArray = [1, 2, 3];
+            Y.ArrayAssert.itemsAreEqual(expectedArray, actualArray, "Expected arrays to be the same");
+        },
+
+        testArrayInequality: function () {
+            var expectedArray = [1, 2, 3];
+            var actualArray = [1, 2, 4];
+            Y.ArrayAssert.itemsAreEqual(expectedArray, actualArray, "Expected arrays to be the same"); // This test will fail
+        }
+    }));
+
+    YUI().use('node', function (Y) {
+    // A function that gives hello world feedback:
+    var helloWorld = function(e) {
+        e.target.setHTML("<p>Hello World!</p>");
+        Y.one('#container').addClass('hello');
+    }
+
+    // subscribe the helloWorld function as an event handler for the click
+    // event on the container div:
+    var node = Y.one("#container");
+
+    node.on("click", helloWorld);
+
+    // A function that displays a message and prevents the default behavior of
+    // the event for which it is a handler:
+    var interceptLink = function(e) {
+        e.preventDefault();
+        Y.one('.message').setStyle('visibility', 'visible');
+    }
+
+    // subscribe our interceptLink function as a click handler for the second
+    // anchor element:
+    Y.one('#secondA').on("click", interceptLink);
+
+    YUI().use('resize', function(Y) {
+    var resize = new Y.Resize({
+        //Selector of the node to resize
+        node: '#demo'
+    });   
+	resize.plug(Y.Plugin.ResizeConstrained, {
+		constrain: '#demoContainer',
+		minHeight: 50,
+		minWidth: 50
+	});
+});
+});
+    
+    // Create a TestRunner
+    var runner = Y.Test.Runner;
+
+    // Add the test suite to the runner
+    runner.add(suite);
+
+    // Capture test events and display results on the webpage
+    runner.on('runStart', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: Testing began at " + event.time + "<br>";
+    });
+
+    runner.on('testSuiteStart', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: Test suite \"" + event.testSuite.name + "\" started.<br>";
+    });
+
+    runner.on('testCaseStart', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: Test case \"" + event.testCase.name + "\" started.<br>";
+    });
+
+    runner.on('pass', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: " + event.testCase.name + ": passed.<br>";
+    });
+
+    runner.on('fail', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: " + event.testCase.name + ": failed. " + event.error.getMessage() + "<br>";
+    });
+
+    runner.on('testCaseComplete', function(event) {
+        document.getElementById('testResults').innerHTML += "TestRunner: Test case \"" + event.testCase.name + "\" completed.<br>";
+    });
+
+    runner.on('testSuiteComplete', function(event) {
+        document.getElementById('testResults').innerHTML += "Passed:" + event.results.passed + " Failed:" + event.results.failed + " Total:" + event.results.total + " (0 ignored)<br>";
+        document.getElementById('testResults').innerHTML += "TestRunner: Test suite \"" + event.testSuite.name + "\" completed.<br>";
+    });
+
+    runner.on('runComplete', function(event) {
+        document.getElementById('testResults').innerHTML += "Passed:" + event.results.passed + " Failed:" + event.results.failed + " Total:" + event.results.total + " (0 ignored)<br>";
+        document.getElementById('testResults').innerHTML += "TestRunner: Testing completed at " + event.time + "<br>";
+    });
+
+    // Run the tests
+    runner.run();
+});
+</script>
+</body>
+</html>
